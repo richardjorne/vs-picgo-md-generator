@@ -1,4 +1,22 @@
-# vs-picgo
+# vs-picgo-enhanced
+
+This is a personal fork of [vs-picgo](https://github.com/PicGo/vs-picgo) with two enhancements for personal convenience. However, you are very welcome to use it.
+
+To use this extension, head to the GitHub release page and download. Then, install the vsix file in VSCode.
+
+I am considering pushing this to the official branch so that you can simply update the extension you already had from the VSCode marketplace. Before there is any update, you can directly download this extension from the release page.
+
+Enhancements:
+
+1. Add a new command to upload all images in the opening markdown file to the hosting service and create a copy of the markdown file with the image links replaced by the hosting service links. 
+   - You can also choose not to create a copy and just replace all images in the current file.
+2. Add zh-cn support.
+
+The new command is critically important to people like me who always want to have a local copy of the images while wanting to have a very convenient way to have the images uploaded.
+
+With the new command you can easily get the markdown file with all images uploaded while keeping the original markdown file intact!
+
+# Original README
 
 > The VSCode extension of [PicGo](https://github.com/PicGo).
 
