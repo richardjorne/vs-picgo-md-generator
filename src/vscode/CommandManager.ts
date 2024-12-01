@@ -85,7 +85,9 @@ export class CommandManager {
       }
 
       // Create new file path
-      const newFileName = `${originalFileName}_uploadedVersion${fileExt}`
+      const newFileName = `${originalFileName}${
+        useUploadFolder ? '' : '_uploadedVersion'
+      }${fileExt}`
       const newFilePath = path.join(targetDir, newFileName)
 
       // Copy original file content
