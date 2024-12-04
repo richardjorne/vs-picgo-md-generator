@@ -25,8 +25,5 @@
   "config.picBed.imgur.description": "Imgur picBed configuration.",
   "config.useUploadVersionFolder.description": "Whether to save uploaded version files in a separate 'uploadVersion' folder",
   "command.generate.uploadedImageVersionMarkdown.title": "Generate uploaded image version markdown",
-  "command.uploadedImageVersionMarkdownInTheSameFile.title": "Upload and replace all image links in the current file",
-  "command.uploadedImageVersionMarkdownInTheSameFileWarning": "No local images found in current document: ${absolutePath}",
-  "command.replaceOriginalImageLinkWithUploadedImageLinkInfo": "Replaced original image link ${original} with uploaded image link ${replacement}.",
-  "command.noLocalImagesFoundInCurrentDocumentWarning": "No local images found in current document"
+  "command.uploadedImageVersionMarkdownInTheSameFile.title": "Upload and replace all image links in the current file"
 }

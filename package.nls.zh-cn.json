@@ -25,8 +25,5 @@
   "config.picBed.github.repo.description": "`用户名/仓库名`。例如: PicGo/Images",
   "config.picBed.aliyun.description": "阿里云 OSS 配置",
   "config.picBed.imgur.description": "Imgur 图床配置",
-  "config.useUploadVersionFolder.description": "是否将上传版本文件保存在单独的 'uploadVersion' 文件夹中",
-  "config.uploadedImageVersionMarkdownInTheSameFileWarning": "当前文档中未找到本地图片: ${absolutePath}",
-  "config.replaceOriginalImageLinkWithUploadedImageLinkInfo": "将原始图片链接 ${original} 替换为已上传图片链接 ${replacement}.",
-  "config.noLocalImagesFoundInCurrentDocumentWarning": "当前文档中未找到本地图片"
+  "config.useUploadVersionFolder.description": "是否将上传版本文件保存在单独的 'uploadVersion' 文件夹中"
 }

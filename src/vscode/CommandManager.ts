@@ -64,6 +64,12 @@ export class CommandManager {
     } else {
       // Original file handling logic
       const originalFilePath = document.uri.fsPath
+      const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri)
+      if (!workspaceFolder) {
+        showError('No workspace folder found')
+        return
+      }
+
       const originalDir = path.dirname(originalFilePath)
       const originalFileName = path.basename(
         originalFilePath,
@@ -77,11 +83,23 @@ export class CommandManager {
         .get('useUploadVersionFolder', false)
 
       // Determine target directory and create if needed
-      const targetDir = useUploadFolder
-        ? path.join(originalDir, 'uploadVersion')
-        : originalDir
-      if (useUploadFolder && !fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir)
+      let targetDir
+      if (useUploadFolder) {
+        // Get relative path from workspace root to the original file's directory
+        const relativeDir = path.relative(
+          workspaceFolder.uri.fsPath,
+          originalDir
+        )
+        // Create target path in uploadedVersion folder
+        targetDir = path.join(
+          workspaceFolder.uri.fsPath,
+          'uploadedVersion',
+          relativeDir
+        )
+        // Create all necessary directories
+        fs.mkdirSync(targetDir, { recursive: true })
+      } else {
+        targetDir = originalDir
       }
 
       // Create new file path
@@ -105,7 +123,7 @@ export class CommandManager {
     // 1. Standard markdown: ![alt](url) or ![alt](url "title")
     // 2. HTML: <img src="url" ...>
     // 3. Obsidian: ![[filename]]
-    const mdImageRegex = /!\[([^\]]*)\]\(([^)\s]+)\s*(.*)?\)|<img[^>]+src=["']([^"']+)["'][^>]*>|!\[\[([^\]]+)\]\]/g
+    const mdImageRegex = /!\[([^\]]*)\]\((?:<([^>]+)>|([^)\s]+))\s*(.*)?\)|<img[^>]+src=["']([^"']+)["'][^>]*>|!\[\[([^\]]+)\]\]/g
     let match
     let hasLocalImage = false
     const replacements: Array<{ original: string; replacement: string }> = []
@@ -121,6 +139,9 @@ export class CommandManager {
       if (match[2]) {
         // Standard markdown
         imgUrl = match[2]
+      } else if (match[3]) {
+        // Standard markdown
+        imgUrl = match[3]
       } else if (match[4]) {
         // HTML format
         imgUrl = match[4]
@@ -131,14 +152,13 @@ export class CommandManager {
 
       if (!imgUrl) continue
 
-      // 检查是否为本地路径
+      // Check whether it's a local path or a URL
       if (!imgUrl.startsWith('http') && !imgUrl.startsWith('data:')) {
         hasLocalImage = true
 
-        // 处理路径
+        // Handle path
         let absolutePath = imgUrl
         if (!path.isAbsolute(imgUrl)) {
-          // 对于Obsidian格式，需要特殊处理附件文件夹路径
           if (match[5]) {
             // Obsidian syntax
             const attachmentFolders = [
@@ -147,7 +167,7 @@ export class CommandManager {
               path.dirname(document.uri.fsPath)
             ]
 
-            // 尝试在不同的附件文件夹中查找文件
+            // search for the image in the attachment folders (possible when in Obsidian)
             for (const folder of attachmentFolders) {
               const testPath = path.join(folder, imgUrl)
               if (fs.existsSync(testPath)) {
@@ -185,6 +205,10 @@ export class CommandManager {
             // Markdown format
             const originalStr = match[0]
             replacement = originalStr.replace(match[2], newUrl)
+          } else if (match[3]) {
+            // Markdown format
+            const originalStr = match[0]
+            replacement = originalStr.replace(match[3], newUrl)
           } else if (match[4]) {
             // HTML format
             const originalStr = match[0]
@@ -199,23 +223,13 @@ export class CommandManager {
             replacement: replacement
           })
         } else {
-          showError(
-            vscode.workspace
-              .getConfiguration('picgo')
-              .get('uploadedImageVersionMarkdownInTheSameFileWarning') ??
-              `Local image not found: ${absolutePath}`
-          )
+          showError(`Local image not found: ${absolutePath}`)
         }
       }
     }
 
     if (!hasLocalImage) {
-      showWarning(
-        vscode.workspace
-          .getConfiguration('picgo')
-          .get('noLocalImagesFoundInCurrentDocumentWarning') ??
-          'No local images found in current document'
-      )
+      showWarning('No local images found in current document')
       return
     }
 
@@ -230,10 +244,7 @@ export class CommandManager {
         )
         editBuilder.replace(new vscode.Range(startPos, endPos), replacement)
         showInfo(
-          vscode.workspace
-            .getConfiguration('picgo')
-            .get('replaceOriginalImageLinkWithUploadedImageLinkInfo') ??
-            `Replaced original image link ${original} with uploaded image link ${replacement}.`
+          `Replaced original image link ${original} with uploaded image link ${replacement}.`
         )
       }
     })
